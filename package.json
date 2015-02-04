@@ -1,0 +1,29 @@
+{
+  "name": "mimosa-phantomcss",
+  "version": "0.1.0",
+  "homepage": "https://github.com/dbazile",
+  "author": "David Bazile",
+  "description": "A Mimosa module for running automated visual testing via PhantomCSS.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dbazile/mimosa-phantomcss"
+  },
+  "keywords": [
+    "mimosa",
+    "module",
+    "phantomcss",
+    "casperjs",
+    "phantomjs"
+  ],
+  "main": "./src/index",
+  "dependencies": {
+    "glob": "^4"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=0.10"
+  },
+  "scripts": {
+    "postinstall": "npm install phantomcss@0.9 --save-dev"
+  }
+}
