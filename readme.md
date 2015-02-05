@@ -12,17 +12,6 @@ This module provides a simple execution wrapper around [PhantomCSS](https://gith
 1. Add `'mimosa-phantomcss'` to your list of modules.
 2. From the command line, execute `mimosa test:phantomcss` to run your tests.  Using the default configuration, any PhantomCSS test scripts in `assets/javascripts/tests/visual` will be executed and screenshots will be created in `.mimosa/phantomcss/screenshots`.
 
-If you get the following error:
-
-```
-15:01:06 - ERROR - Unable to start Mimosa for the following reason(s):
- * phantomcss.libraries.casperjs ./node_modules/phantomcss/node_modules/casperjs cannot be found
- * phantomcss.libraries.phantomcss ./node_modules/phantomcss cannot be found
- * phantomcss.libraries.phantomjs ./node_modules/phantomcss/node_modules/phantomjs cannot be found
-```
-
-That just means you need to run `npm install phantomcss --save-dev` to grab the PhantomCSS module.
-
 ### Example test script to get you going
 
 ```javascript

@@ -1,6 +1,10 @@
 'use strict';
 
+var path = require('path');
+
 exports.defaults = function() {
+  var nodeModules = path.resolve(path.join(__dirname, '../node_modules'));
+
   return {
     phantomcss: {
       verbose: false,
@@ -8,9 +12,9 @@ exports.defaults = function() {
       testPattern: '**/*{test,spec}.{js,coffee}',
       screenshotDirectory: '.mimosa/phantomcss/screenshots',
       libraries: {
-        casperjs: './node_modules/phantomcss/node_modules/casperjs',
-        phantomcss: './node_modules/phantomcss',
-        phantomjs: './node_modules/phantomcss/node_modules/phantomjs'
+        phantomcss: path.join(nodeModules, 'phantomcss'),
+        phantomjs: path.join(nodeModules, 'phantomcss/node_modules/phantomjs'),
+        casperjs: path.join(nodeModules, 'phantomcss/node_modules/casperjs')
       }
     }
   };
@@ -33,4 +37,3 @@ exports.validate = function(config, validators) {
 
   return errors;
 };
-
