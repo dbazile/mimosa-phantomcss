@@ -8,6 +8,8 @@ exports.defaults = function() {
   return {
     phantomcss: {
       verbose: false,
+      enabledOnBuild: false,
+      shouldStopBuildOnFailure: true,
       testDirectory: 'assets/javascripts/tests/visual',
       testPattern: '**/*{test,spec}.{js,coffee}',
       screenshotDirectory: '.mimosa/phantomcss/screenshots',
@@ -33,6 +35,8 @@ exports.validate = function(config, validators) {
     validators.doesPathExist(errors, 'phantomcss.testDirectory', config.phantomcss.testDirectory);
     validators.isString(errors, 'phantomcss.testPattern', config.phantomcss.testPattern);
     validators.isBoolean(errors, 'phantomcss.verbose', config.phantomcss.verbose);
+    validators.isBoolean(errors, 'phantomcss.enabledOnBuild', config.phantomcss.enabledOnBuild);
+    validators.isBoolean(errors, 'phantomcss.shouldStopBuildOnFailure', config.phantomcss.shouldStopBuildOnFailure);
   }
 
   return errors;

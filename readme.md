@@ -31,6 +31,10 @@ Run **`mimosa phantomcss:clean`** to remove all of the comparison images from th
 
 Either set *`mimosaConfig.phantomcss.verbose`* to `true` or use the `-v` flag, e.g., **`mimosa phantomcss -v`**.
 
+### Need to have a screenshot failure halt a build?
+
+Set *`mimosaConfig.phantomcss.enabledOnBuild`* and *`mimosaConfig.phantomcss.shouldStopBuildOnFailure`* to `true`.
+
 
 
 ## Functionality
@@ -53,6 +57,8 @@ These scripts are essentially CasperJS scripts, so everything that you'd expect 
 ```javascript
 phantomcss: {
   verbose: false,
+  enabledOnBuild: false,
+  shouldStopBuildOnFailure: true,
   testDirectory: 'assets/javascripts/tests/visual',
   testPattern: '**/*{test,spec}.{js,coffee}',
   screenshotDirectory: '.mimosa/phantomcss/screenshots',
@@ -67,6 +73,14 @@ phantomcss: {
 #### `phantomcss.verbose` boolean
 
 Setting this property to `true` will always print out the raw CasperJS output to the console.  This is the same as running every time with the `-v` flag.
+
+#### `phantomcss.enabledOnBuild` boolean
+
+Setting this property to `true` will add PhantomCSS testing to the **`mimosa build`** workflow.
+
+#### `phantomcss.shouldStopBuildOnFailure` boolean
+
+If `phantomcss.enabledOnBuild` is `true`, setting this property to `true` will halt the build when any PhantomCSS test script encounters a failure.
 
 #### `phantomcss.testDirectory` string
 

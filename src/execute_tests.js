@@ -1,7 +1,22 @@
 var path = require('path');
 var child = require('child_process');
 var glob = require('glob');
-var isVerbose, logger;
+
+var numberOfRunningTests = 0;
+var numberOfFailures = 0;
+var isVerbose, logger, onAllTestsComplete;
+
+/**
+ * Called after each CasperJS script finishes execution.
+ *
+ * @param {string} filepath The path to the script that just executed
+ */
+function afterExecute(filepath) {
+  --numberOfRunningTests;
+  if (0 === numberOfRunningTests && typeof onAllTestsComplete === 'function') {
+    onAllTestsComplete(0 === numberOfFailures);
+  }
+}
 
 /**
  * Adds required library binaries to the system environment PATH.
@@ -24,7 +39,7 @@ function appendLibrariesToPath(libraries) {
 function executeScriptWithCasper(filepath) {
 
   // Since these tests might be very slow to return results, give the user some feedback
-  logger.info('[[ %s ]]: starting...', filepath);
+  logger.info('Starting [[ %s ]]...', filepath);
 
   logger.debug('Before executing [[ %s ]]', filepath);
   child.exec('casperjs test "' + filepath + '"', function(error, stdout, stderr) {
@@ -34,6 +49,10 @@ function executeScriptWithCasper(filepath) {
       logger.info('Verbose output for [[ %s ]]:\n%s\n\n', filepath, stdout);
     } else if (-1 !== stdout.indexOf('error: ')) {
       logger.error('Encountered error in [[ %s ]]:\n%s\n\n', filepath, stdout);
+
+      // Fail fast if there was an execution error in a test script
+      process.exit(1);
+
     } else {
       var filename = path.basename(filepath);
       var report = scrapeOutput(stdout);
@@ -45,11 +64,14 @@ function executeScriptWithCasper(filepath) {
 
       // Explicitly call out any failures
       report.failures.forEach(function(screenshot) {
-        logger.warn(filename + ': Failed [[ ' + screenshot + ' ]]');
+        ++numberOfFailures;
+        logger.error(filename + ': Failed [[ ' + screenshot + ' ]]');
       });
 
       reportFinalStatus(report, filepath);
     }
+
+    afterExecute(filepath);
   });
 }
 
@@ -58,14 +80,16 @@ function executeScriptWithCasper(filepath) {
  *
  * @param  {object} config         The phantomcss node from mimosaConfig
  * @param  {object} loggerInstance An instance of the mimosa logger object
+ * @param  {function?} callback    Invoked after all tests complete.  Args: (allTestsPassed: bool)
  */
-function main(config, loggerInstance) {
+function main(config, loggerInstance, callback) {
   var directory = config.testDirectory;
   var pattern = config.testPattern;
 
   // Save these for later usage
   logger = loggerInstance;
   isVerbose = config.verbose;
+  onAllTestsComplete = callback;
 
   // Executing casperjs test requires the library binaries to be on the system PATH
   appendLibrariesToPath(config.libraries);
@@ -73,6 +97,7 @@ function main(config, loggerInstance) {
   // Find and execute test files
   logger.debug('Globbing files: [[ %s/%s ]]', directory, pattern);
   glob(path.join(directory, pattern), function(err, files) {
+    numberOfRunningTests = files.length;
     if (files.length) {
       files.forEach(executeScriptWithCasper);
     } else {
