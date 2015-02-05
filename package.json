@@ -10,10 +10,12 @@
   },
   "keywords": [
     "mimosa",
-    "module",
     "phantomcss",
     "casperjs",
-    "phantomjs"
+    "phantomjs",
+    "visual",
+    "screenshot",
+    "testing"
   ],
   "main": "./src/index",
   "dependencies": {
@@ -25,5 +27,6 @@
     "node": ">=0.10"
   },
   "scripts": {
+    "postinstall": "mkdir -p assets/javascripts/tests/visual"
   }
 }

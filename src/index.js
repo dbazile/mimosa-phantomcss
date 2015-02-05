@@ -3,6 +3,7 @@
 var config = require('./config');
 var clean = require('./clean');
 var execute = require('./execute_tests');
+var generateTests = require('./generate_tests');
 
 /**
  * Generates a logger wrapper that prefixes the module name to log output.
@@ -34,43 +35,57 @@ function generateLoggerProxy(logger) {
  */
 function registerCommand(program, retrieveConfig) {
   program
-    .command('test:phantomcss')
-    .option('-r, --rebaseline', 'Rebuilds any baseline screenshots.')
-    .option('-c, --clean',      'Clean the .diff and .fail screenshots from the comparison results.')
+    .command('phantomcss')
+    .option('-r, --rebaseline', 'Rebuilds all baseline screenshots for all tests')
     .option('-v, --verbose',    'Directly dumps the CasperJS output to the console')
-    .description('Run PhantomCSS visual inspection tests')
-    .action(function(options) {
-      var flags = {
-        buildFirst: false, // Does this make sense?  In most cases, won't this be used against a running `watch`?
-        mdebug: false
-      };
+    .option('-D, --mdebug',     'Run in debug mode')
+    .description('Runs all visual inspection tests')
+    .action(commandRunAllTests);
 
-      retrieveConfig(flags, function(mimosaConfig) {
-        var logger = generateLoggerProxy(mimosaConfig.log);
+  program
+    .command('phantomcss:clean')
+    .option('-D, --mdebug', 'Run in debug mode')
+    .description('Cleans all .diff and .fail screenshots from the screenshot directory')
+    .action(commandClean);
 
-        if (options.rebaseline || options.clean) {
-          var cleanupPattern, cleanupMessage;
+  program
+    .command('phantomcss:gen')
+    .option('-D, --mdebug', 'Run in debug mode')
+    .description('Generates example PhantomCSS tests in phantomcss.testDirectory')
+    .action(commandGenerateTests);
 
-          if (options.rebaseline) {
-            cleanupMessage = 'Clearing old baseline';
-            cleanupPattern = '**/*.png';
-          } else {
-            cleanupMessage = 'Clearing failures and diffs';
-            cleanupPattern = '**/*.{diff,fail}.png';
-          }
-
-          logger.info(cleanupMessage);
-          clean(mimosaConfig.phantomcss.screenshotDirectory, cleanupPattern, logger);
-        }
-
-        if (options.verbose) {
-          logger.debug('Enabling `verbose` flag');
-          mimosaConfig.phantomcss.verbose = true;
-        }
-
-        execute(mimosaConfig.phantomcss, logger);
-      });
+  function commandClean(options) {
+    retrieveConfig(false, !!options.mdebug, function(mimosaConfig) {
+      var logger = generateLoggerProxy(mimosaConfig.log);
+      logger.info('Removing all comparison and failure screenshots');
+      clean(mimosaConfig.phantomcss.screenshotDirectory, '**/*.{fail,diff}.png', logger);
     });
+  }
+
+  function commandGenerateTests(options) {
+    retrieveConfig(false, !!options.mdebug, function(mimosaConfig) {
+      var logger = generateLoggerProxy(mimosaConfig.log);
+      generateTests(mimosaConfig.phantomcss, logger);
+    });
+  }
+
+  function commandRunAllTests(options) {
+    retrieveConfig(false, !!options.mdebug, function(mimosaConfig) {
+      var logger = generateLoggerProxy(mimosaConfig.log);
+
+      if (options.rebaseline) {
+        logger.info('Clearing old baseline');
+        clean(mimosaConfig.phantomcss.screenshotDirectory, '**/*.png', logger);
+      }
+
+      if (options.verbose) {
+        logger.debug('Enabling `verbose` flag');
+        mimosaConfig.phantomcss.verbose = true;
+      }
+
+      execute(mimosaConfig.phantomcss, logger);
+    });
+  }
 }
 
 module.exports = {
