@@ -95,25 +95,31 @@ function registerCommand(program, retrieveConfig) {
  * @param  {function} register
  */
 function registration(mimosaConfig, register) {
-  var logger = generateLoggerProxy(mimosaConfig.log);
-  var config = mimosaConfig.phantomcss;
 
-  if (config.enabledOnBuild && mimosaConfig.isBuild) {
-    register(['postBuild'], 'beforePackage', function(mimosaConfig, options, next) {
-      execute(config, logger, function(allTestsPassed) {
-        if (!allTestsPassed) {
-          if (config.shouldStopBuildOnFailure || mimosaConfig.exitOnError) {
-            logger.error('Build is broken; Exiting.');
-            process.exit(1);
-          } else {
-            logger.warn('There were failures in some visual tests');
-          }
-        }
+  /*
+   * Notes:
+   * 2015-02-06 ddb: Disabling until a good plan for build integration presents itself.
+   */
 
-        next();
-      });
-    });
-  }
+  // var logger = generateLoggerProxy(mimosaConfig.log);
+  // var config = mimosaConfig.phantomcss;
+
+  // if (config.enabledOnBuild && mimosaConfig.isBuild) {
+  //   register(['postBuild'], 'beforePackage', function(mimosaConfig, options, next) {
+  //     execute(config, logger, function(allTestsPassed) {
+  //       if (!allTestsPassed) {
+  //         if (config.shouldStopBuildOnFailure || mimosaConfig.exitOnError) {
+  //           logger.error('Build is broken; Exiting.');
+  //           process.exit(1);
+  //         } else {
+  //           logger.warn('There were failures in some visual tests');
+  //         }
+  //       }
+
+  //       next();
+  //     });
+  //   });
+  // }
 }
 
 module.exports = {
