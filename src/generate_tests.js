@@ -33,7 +33,7 @@ var test1 = "var phantomcss = require('phantomcss');\n" +
             "\n" +
             "casper.then(function() {\n" +
             "  casper.click('#navbar > ul:nth-child(1) > li.dropdown > a');\n" +
-            "  phantomcss.screenshot('body', 'interaction/dropdown/before_click');\n" +
+            "  phantomcss.screenshot('body', 'interaction/dropdown/after_click');\n" +
             "});\n" +
             "\n" +
             "casper.then(function() {\n" +
