@@ -25,8 +25,5 @@
   "license": "MIT",
   "engines": {
     "node": ">=0.10"
-  },
-  "scripts": {
-    "postinstall": "mkdir -p assets/javascripts/tests/visual"
   }
 }
