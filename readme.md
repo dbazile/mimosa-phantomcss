@@ -40,11 +40,11 @@ mimosa-phantomcss will search the directory identified by *`mimosaConfig.phantom
 
 As an example, all of the following files would be found and automatically executed:
 
-* `assets/javascripts/tests/visuals/` `foo_test.js`
-* `assets/javascripts/tests/visuals/` `foo_test.coffee`
-* `assets/javascripts/tests/visuals/` `foo_spec.js`
-* `assets/javascripts/tests/visuals/` `foo_spec.coffee`
-* `assets/javascripts/tests/visuals/` `/bar/boo/baz/foo_test.js`
+* `path/to/tests/` **`foo_test.js`**
+* `path/to/tests/` **`foo_test.coffee`**
+* `path/to/tests/` **`foo_spec.js`**
+* `path/to/tests/` **`foo_spec.coffee`**
+* `path/to/tests/` **`bar/boo/baz/foo_test.js`**
 
 These scripts are essentially CasperJS scripts, so everything that you'd expect to be able to do in CasperJS should work.
 
