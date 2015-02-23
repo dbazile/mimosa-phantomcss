@@ -4,6 +4,7 @@ var glob = require('glob');
 
 var numberOfRunningTests = 0;
 var numberOfFailures = 0;
+var casperExecutionOptions;
 var isVerbose, logger, onAllTestsComplete;
 
 /**
@@ -37,12 +38,13 @@ function appendLibrariesToPath(libraries) {
  * @param  {string} filepath
  */
 function executeScriptWithCasper(filepath) {
+  var command = 'casperjs test "' + filepath + '" ' + casperExecutionOptions;
 
   // Since these tests might be very slow to return results, give the user some feedback
   logger.info('Starting [[ %s ]]...', filepath);
 
   logger.debug('Before executing [[ %s ]]', filepath);
-  child.exec('casperjs test "' + filepath + '"', function(error, stdout, stderr) {
+  child.exec(command, function(error, stdout, stderr) {
     logger.debug('After executing [[ casperjs test %s ]]', filepath);
 
     if (isVerbose) {
@@ -90,6 +92,7 @@ function main(config, loggerInstance, callback) {
   logger = loggerInstance;
   isVerbose = config.verbose;
   onAllTestsComplete = callback;
+  casperExecutionOptions = config.executionOptions.join(' ');
 
   // Executing casperjs test requires the library binaries to be on the system PATH
   appendLibrariesToPath(config.libraries);

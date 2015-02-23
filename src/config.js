@@ -13,6 +13,7 @@ exports.defaults = function() {
       testDirectory: 'assets/javascripts/tests/visual',
       testPattern: '**/*{test,spec}.{js,coffee}',
       screenshotDirectory: '.mimosa/phantomcss/screenshots',
+      executionOptions: [],
       libraries: {
         phantomcss: path.join(nodeModules, 'phantomcss'),
         phantomjs: path.join(nodeModules, 'phantomcss/node_modules/phantomjs'),
@@ -34,6 +35,7 @@ exports.validate = function(config, validators) {
 
     validators.doesPathExist(errors, 'phantomcss.testDirectory', config.phantomcss.testDirectory);
     validators.isString(errors, 'phantomcss.testPattern', config.phantomcss.testPattern);
+    validators.isArrayOfStrings(errors, 'phantomcss.executionOptions', config.phantomcss.executionOptions);
     validators.isBoolean(errors, 'phantomcss.verbose', config.phantomcss.verbose);
     // validators.isBoolean(errors, 'phantomcss.enabledOnBuild', config.phantomcss.enabledOnBuild);
     // validators.isBoolean(errors, 'phantomcss.shouldStopBuildOnFailure', config.phantomcss.shouldStopBuildOnFailure);

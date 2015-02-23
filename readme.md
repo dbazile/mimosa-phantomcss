@@ -57,6 +57,7 @@ phantomcss: {
   testDirectory: 'assets/javascripts/tests/visual',
   testPattern: '**/*{test,spec}.{js,coffee}',
   screenshotDirectory: '.mimosa/phantomcss/screenshots',
+  executionOptions: [],
   libraries: {
     casperjs: '/path/to/mimosa-phantomcss/node_modules/phantomcss/node_modules/casperjs',
     phantomcss: '/path/to/mimosa-phantomcss/node_modules/phantomcss',
@@ -82,6 +83,14 @@ A glob that will be used to find the test script files to be executed.
 This is the directory where you will be creating screenshots.
 
 > *Caution: Running `mimosa phantomcss -r` deletes all of the `.png` files in this directory.*
+
+#### `phantomcss.executionOptions` string[]
+
+This lets you specify any command-line options to be passed to CasperJS/PhantomJS, e.g.,
+
+```
+  executionOptions: ['--ignore-ssl-errors=true', '--cookies-file=/path/to/cookies.txt']
+```
 
 #### `phantomcss.libraries.casperjs` string
 
