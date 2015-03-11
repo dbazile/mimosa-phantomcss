@@ -57,7 +57,8 @@ var test1 = "var phantomcss = require('phantomcss');\n" +
 function main(options, logger) {
 
   // Add the PhantomCSS npm module home to the config
-  config = config.replace('$PATH_TO_PHANTOMCSS_HOME', options.libraries.phantomcss);
+  var phantomcssHome = path.relative(process.cwd(), options.libraries.phantomcss);
+  config = config.replace('$PATH_TO_PHANTOMCSS_HOME', phantomcssHome);
 
   write('config.json', config);
   write('example_test.js', test1);
