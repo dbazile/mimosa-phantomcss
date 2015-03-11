@@ -59,7 +59,7 @@ function registerCommand(program, logger, retrieveConfig) {
   function commandClean(options) {
     var runOptions = {
       buildFirst: false,
-      debug: !!options.mdebug
+      mdebug: !!options.mdebug
     };
 
     retrieveConfig(runOptions, function(mimosaConfig) {
@@ -71,7 +71,7 @@ function registerCommand(program, logger, retrieveConfig) {
   function commandGenerateTests(options) {
     var runOptions = {
       buildFirst: false,
-      debug: !!options.mdebug
+      mdebug: !!options.mdebug
     };
 
     retrieveConfig(runOptions, function(mimosaConfig) {
@@ -82,7 +82,7 @@ function registerCommand(program, logger, retrieveConfig) {
   function commandRunAllTests(options) {
     var runOptions = {
       buildFirst: false,
-      debug: !!options.mdebug
+      mdebug: !!options.mdebug
     };
 
     retrieveConfig(runOptions, function(mimosaConfig) {
