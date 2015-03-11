@@ -33,7 +33,7 @@ function generateLoggerProxy(logger) {
  * @param  {object} program          Commander.js object
  * @param  {function} retrieveConfig Mimosa callback
  */
-function registerCommand(program, retrieveConfig) {
+function registerCommand(program, logger, retrieveConfig) {
   program
     .command('phantomcss')
     .option('-r, --rebaseline', 'Rebuilds all baseline screenshots for all tests')
@@ -54,36 +54,50 @@ function registerCommand(program, retrieveConfig) {
     .description('Generates example PhantomCSS tests in phantomcss.testDirectory')
     .action(commandGenerateTests);
 
+  var loggerProxy = generateLoggerProxy(logger);
+
   function commandClean(options) {
-    retrieveConfig(false, !!options.mdebug, function(mimosaConfig) {
-      var logger = generateLoggerProxy(mimosaConfig.log);
-      logger.info('Removing all comparison and failure screenshots');
-      clean(mimosaConfig.phantomcss.screenshotDirectory, '**/*.{fail,diff}.png', logger);
+    var runOptions = {
+      buildFirst: false,
+      debug: !!options.mdebug
+    };
+
+    retrieveConfig(runOptions, function(mimosaConfig) {
+      loggerProxy.info('Removing all comparison and failure screenshots');
+      clean(mimosaConfig.phantomcss.screenshotDirectory, '**/*.{fail,diff}.png', loggerProxy);
     });
   }
 
   function commandGenerateTests(options) {
-    retrieveConfig(false, !!options.mdebug, function(mimosaConfig) {
-      var logger = generateLoggerProxy(mimosaConfig.log);
-      generateTests(mimosaConfig.phantomcss, logger);
+    var runOptions = {
+      buildFirst: false,
+      debug: !!options.mdebug
+    };
+
+    retrieveConfig(runOptions, function(mimosaConfig) {
+      generateTests(mimosaConfig.phantomcss, loggerProxy);
     });
   }
 
   function commandRunAllTests(options) {
-    retrieveConfig(false, !!options.mdebug, function(mimosaConfig) {
-      var logger = generateLoggerProxy(mimosaConfig.log);
+    var runOptions = {
+      buildFirst: false,
+      debug: !!options.mdebug
+    };
+
+    retrieveConfig(runOptions, function(mimosaConfig) {
 
       if (options.rebaseline) {
-        logger.info('Clearing old baseline');
-        clean(mimosaConfig.phantomcss.screenshotDirectory, '**/*.png', logger);
+        loggerProxy.info('Clearing old baseline');
+        clean(mimosaConfig.phantomcss.screenshotDirectory, '**/*.png', loggerProxy);
       }
 
       if (options.verbose) {
-        logger.debug('Enabling `verbose` flag');
+        loggerProxy.debug('Enabling `verbose` flag');
         mimosaConfig.phantomcss.verbose = true;
       }
 
-      execute(mimosaConfig.phantomcss, logger);
+      execute(mimosaConfig.phantomcss, loggerProxy);
     });
   }
 }
