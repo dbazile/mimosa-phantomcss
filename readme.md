@@ -27,6 +27,8 @@ Run **`mimosa phantomcss -r`** to rebuild all baseline screenshots located in th
 
 Run **`mimosa phantomcss:clean`** to remove all of the comparison images from the screenshot directory.
 
+This can also optionally be done by using the `-c` flag with the regular run command, e.g., **`mimosa phantomcss -c`**
+
 ### Need to see the raw CasperJS output?
 
 Either set *`mimosaConfig.phantomcss.verbose`* to `true` or use the `-v` flag, e.g., **`mimosa phantomcss -v`**.
