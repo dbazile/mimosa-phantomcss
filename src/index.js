@@ -36,6 +36,7 @@ function generateLoggerProxy(logger) {
 function registerCommand(program, logger, retrieveConfig) {
   program
     .command('phantomcss')
+    .option('-c, --clean',      'Cleans all .diff and .fail screenshots from the screenshot directory before executing tests')
     .option('-r, --rebaseline', 'Rebuilds all baseline screenshots for all tests')
     .option('-v, --verbose',    'Directly dumps the CasperJS output to the console')
     .option('-D, --mdebug',     'Run in debug mode')
@@ -90,6 +91,12 @@ function registerCommand(program, logger, retrieveConfig) {
       if (options.rebaseline) {
         loggerProxy.info('Clearing old baseline');
         clean(mimosaConfig.phantomcss.screenshotDirectory, '**/*.png', loggerProxy);
+      } else {
+        // Ensure `rebaseline` takes precedence over `clean`
+        if (options.clean) {
+          loggerProxy.info('Removing all comparison and failure screenshots');
+          clean(mimosaConfig.phantomcss.screenshotDirectory, '**/*.{fail,diff}.png', loggerProxy);
+        }
       }
 
       if (options.verbose) {
