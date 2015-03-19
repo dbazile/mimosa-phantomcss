@@ -10,6 +10,7 @@ exports.defaults = function() {
       verbose: false,
       testDirectory: 'assets/javascripts/tests/visual',
       testPattern: '**/*{test,spec}.{js,coffee}',
+      filteredTestPatternTemplate: '**/____FILTERS____*{test,spec}.{js,coffee}',
       screenshotDirectory: '.mimosa/phantomcss/screenshots',
       executionOptions: [],
       libraries: {
@@ -33,6 +34,7 @@ exports.validate = function(config, validators) {
 
     validators.doesPathExist(errors, 'phantomcss.testDirectory', config.phantomcss.testDirectory);
     validators.isString(errors, 'phantomcss.testPattern', config.phantomcss.testPattern);
+    validators.isString(errors, 'phantomcss.filteredTestPatternTemplate', config.phantomcss.filteredTestPatternTemplate);
     validators.isArrayOfStrings(errors, 'phantomcss.executionOptions', config.phantomcss.executionOptions);
     validators.isBoolean(errors, 'phantomcss.verbose', config.phantomcss.verbose);
   }
