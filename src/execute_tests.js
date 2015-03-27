@@ -3,21 +3,8 @@ var child = require('child_process');
 var glob = require('glob');
 
 var numberOfRunningTests = 0;
-var numberOfFailures = 0;
 var casperExecutionOptions;
-var isVerbose, logger, onAllTestsComplete;
-
-/**
- * Called after each CasperJS script finishes execution.
- *
- * @param {string} filepath The path to the script that just executed
- */
-function afterExecute(filepath) {
-  --numberOfRunningTests;
-  if (0 === numberOfRunningTests && typeof onAllTestsComplete === 'function') {
-    onAllTestsComplete(0 === numberOfFailures);
-  }
-}
+var isVerbose, logger;
 
 /**
  * Adds required library binaries to the system environment PATH.
@@ -66,14 +53,12 @@ function executeScriptWithCasper(filepath) {
 
       // Explicitly call out any failures
       report.failures.forEach(function(screenshot) {
-        ++numberOfFailures;
         logger.error(filename + ': Failed [[ ' + screenshot + ' ]]');
       });
 
       reportFinalStatus(report, filepath);
     }
 
-    afterExecute(filepath);
   });
 }
 
@@ -82,16 +67,14 @@ function executeScriptWithCasper(filepath) {
  *
  * @param  {object} config         The phantomcss node from mimosaConfig
  * @param  {object} loggerInstance An instance of the mimosa logger object
- * @param  {function?} callback    Invoked after all tests complete.  Args: (allTestsPassed: bool)
  */
-function main(config, loggerInstance, callback) {
+function main(config, loggerInstance) {
   var directory = config.testDirectory;
   var pattern = config.testPattern;
 
   // Save these for later usage
   logger = loggerInstance;
   isVerbose = config.verbose;
-  onAllTestsComplete = callback;
   casperExecutionOptions = config.executionOptions.join(' ');
 
   // Executing casperjs test requires the library binaries to be on the system PATH
