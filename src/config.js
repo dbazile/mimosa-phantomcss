@@ -8,6 +8,7 @@ exports.defaults = function() {
   return {
     phantomcss: {
       verbose: false,
+      synchronous: false,
       testDirectory: 'assets/javascripts/tests/visual',
       testPattern: '**/*{test,spec}.{js,coffee}',
       filteredTestPatternTemplate: '**/____FILTERS____*{test,spec}.{js,coffee}',
@@ -37,6 +38,7 @@ exports.validate = function(config, validators) {
     validators.isString(errors, 'phantomcss.filteredTestPatternTemplate', config.phantomcss.filteredTestPatternTemplate);
     validators.isArrayOfStrings(errors, 'phantomcss.executionOptions', config.phantomcss.executionOptions);
     validators.isBoolean(errors, 'phantomcss.verbose', config.phantomcss.verbose);
+    validators.isBoolean(errors, 'phantomcss.synchronous', config.phantomcss.synchronous);
   }
 
   return errors;

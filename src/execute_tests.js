@@ -20,46 +20,50 @@ function appendLibrariesToPath(libraries) {
 }
 
 /**
- * Runs a given script with `casperjs test`.
+ * Executes a test synchronously.
  *
- * @param  {string} filepath
+ * @param  {string} filepath  Path to the CasperJS test script
  */
-function executeScriptWithCasper(filepath) {
-  var command = 'casperjs test "' + filepath + '" ' + casperExecutionOptions;
+function executeSync(filepath) {
+  var command = generateCasperCommand(filepath);
+  var stdout;
 
-  // Since these tests might be very slow to return results, give the user some feedback
   logger.info('Starting [[ %s ]]...', filepath);
+  logger.debug('Before executing (synchronously):\n[[ %s ]]', command);
 
-  logger.debug('Before executing [[ %s ]]', filepath);
-  child.exec(command, function(error, stdout, stderr) {
-    logger.debug('After executing [[ casperjs test %s ]]', filepath);
+  try {
+    stdout = child.execSync(command);
+  } catch (e) {
+    stdout = e.stdout;
+  } finally {
+    onExecuteComplete(filepath, stdout.toString());
+  }
+}
 
-    if (isVerbose) {
-      logger.info('Verbose output for [[ %s ]]:\n%s\n\n', filepath, stdout);
-    } else if (-1 !== stdout.indexOf('error: ')) {
-      logger.error('Encountered error in [[ %s ]]:\n%s\n\n', filepath, stdout);
+/**
+ * Executes a test asynchronously.
+ *
+ * @param  {string} filepath  Path to the CasperJS test script
+ */
+function execute(filepath) {
+  var command = generateCasperCommand(filepath);
 
-      // Fail fast if there was an execution error in a test script
-      process.exit(1);
+  logger.info('Starting [[ %s ]]...', filepath);
+  logger.debug('Before executing:\n[[ %s ]]', command);
 
-    } else {
-      var filename = path.basename(filepath);
-      var report = scrapeOutput(stdout);
-
-      // Explicitly identify any new baseline images
-      report.baseline.forEach(function(screenshot, i) {
-        logger.success(filename + ': Baselined [[ ' + screenshot + ' ]]');
-      });
-
-      // Explicitly call out any failures
-      report.failures.forEach(function(screenshot) {
-        logger.error(filename + ': Failed [[ ' + screenshot + ' ]]');
-      });
-
-      reportFinalStatus(report, filepath);
-    }
-
+  child.exec(command, function(_, stdout) {
+    onExecuteComplete(filepath, stdout);
   });
+}
+
+/**
+ * Returns the command string to be executed.
+ *
+ * @param  {string} filepath  Path to the CasperJS test script
+ * @return {string}
+ */
+function generateCasperCommand(filepath) {
+  return 'casperjs test "' + filepath + '" ' + casperExecutionOptions;
 }
 
 /**
@@ -85,7 +89,7 @@ function main(config, loggerInstance) {
   glob(path.join(directory, pattern), function(err, files) {
     numberOfRunningTests = files.length;
     if (files.length) {
-      files.forEach(executeScriptWithCasper);
+      files.forEach(config.synchronous ? executeSync : execute);
     } else {
       logger.info('No test files found in [[ %s ]]', directory);
     }
@@ -93,13 +97,64 @@ function main(config, loggerInstance) {
 }
 
 /**
- * Generates a sensible report based on the execution results for a single test script.
+ * Called whenever the execution of a test script completes.
+ *
+ * @param  {string} filepath Path to the CasperJS test script
+ * @param  {string} stdout
+ */
+function onExecuteComplete(filepath, stdout) {
+  logger.debug('After executing [[ casperjs test %s ]]', filepath);
+
+  if (isVerbose) {
+    logger.info('Verbose output for [[ %s ]]:\n%s\n\n', filepath, stdout);
+  } else if (-1 !== stdout.indexOf('error: ')) {
+    logger.error('Encountered error in [[ %s ]]:\n%s\n\n', filepath, stdout);
+
+    // Fail fast if there was an execution error in a test script
+    process.exit(1);
+
+  } else {
+    var report = scrapeOutput(stdout);
+
+    logBaselinedImages(report.baseline, filepath);
+    logFailedImages(report.failures, filepath);
+    logFinalReport(report, filepath);
+  }
+}
+
+/**
+ * Emits log entries for each baseline created.
+ *
+ * @param  {string[]} images  A list of screenshot paths
+ * @param  {string} filepath  Path to the CasperJS test script
+ */
+function logBaselinedImages(images, filepath) {
+  var filename = path.basename(filepath);
+  images.forEach(function(image) {
+    logger.success(filename + ': Baselined [[ ' + image + ' ]]');
+  });
+}
+
+/**
+ * Emits log entries for each failure.
+ *
+ * @param  {string[]} images  A list of screenshot paths
+ * @param  {string} filepath  Path to the CasperJS test script
+ */
+function logFailedImages(images, filepath) {
+  var filename = path.basename(filepath);
+  images.forEach(function(image) {
+    logger.error(filename + ': Failed [[ ' + image + ' ]]');
+  });
+}
+
+/**
+ * Emits a sensible report based on the execution results for a single test script.
  *
  * @param  {object} report   A simple hash containing arrays of passed, failed and baselined screenshots
  * @param  {string} filepath The path to the test file that executed
  */
-function reportFinalStatus(report, filepath) {
-  var filename = path.basename(filepath);
+function logFinalReport(report, filepath) {
   if (0 === report.failures.length) {
 
     // No Failures
@@ -112,7 +167,7 @@ function reportFinalStatus(report, filepath) {
     } else if (!report.baseline.length) {
 
       // No Failures, no Passes and no Baselines -- did anything happen?
-      logger.info('[[ %s ]]: Executed, but no visual tests ran (try running again with -v flag to see the raw casperjs output)', filename);
+      logger.info('[[ %s ]]: Executed, but no visual tests ran (try running again with -v flag to see the raw casperjs output)', filepath);
 
     }
   }

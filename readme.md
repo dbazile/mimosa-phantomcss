@@ -72,6 +72,9 @@ $ mimosa phantomcss login_page/ left_column
 13:47:41 - Info - mimosa-phantomcss: Starting assets/javascripts/test/visual/profile_page/anonymous/left_column_test.js...
 ```
 
+### Need to run tests synchronously?
+
+Run **`mimosa phantomcss -s`** to have the tests execute one at a time and wait for one to finish before starting the next one.  This is obviously going to be slower, but may prevent long-running tests from timing each other out.
 
 
 ### Need to rebuild the entire baseline?
@@ -113,6 +116,7 @@ These scripts are essentially CasperJS scripts, so everything that you'd expect 
 ```javascript
 phantomcss: {
   verbose: false,
+  synchronous: false,
   testDirectory: 'assets/javascripts/tests/visual',
   testPattern: '**/*{test,spec}.{js,coffee}',
   filteredTestPatternTemplate: '**/____FILTERS____*{test,spec}.{js,coffee}',
@@ -129,6 +133,10 @@ phantomcss: {
 #### `phantomcss.verbose` boolean
 
 Setting this property to `true` will always print out the raw CasperJS output to the console.  This is the same as running every time with the `-v` flag.
+
+#### `phantomcss.synchronous` boolean
+
+Setting this property to `true` will always run tests synchronously.  This is the same as running every time with the `-s` flag.
 
 #### `phantomcss.testDirectory` string
 

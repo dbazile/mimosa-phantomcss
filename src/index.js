@@ -79,6 +79,7 @@ function registerCommand(program, logger, retrieveConfig) {
     .usage('[options] [filters...]')
     .option('-c, --clean',      'Cleans all .diff and .fail screenshots from the screenshot directory before executing tests')
     .option('-r, --rebaseline', 'Rebuilds all baseline screenshots for all tests')
+    .option('-s, --sync',       'Execute tests synchronously')
     .option('-v, --verbose',    'Directly dumps the CasperJS output to the console')
     .option('-D, --mdebug',     'Run in debug mode')
     .description('Runs all visual inspection tests')
@@ -149,6 +150,11 @@ function registerCommand(program, logger, retrieveConfig) {
       if (options.verbose) {
         loggerProxy.debug('Enabling `verbose` flag');
         mimosaConfig.phantomcss.verbose = true;
+      }
+
+      if (options.sync) {
+        loggerProxy.debug('Enabling `synchronous` flag');
+        mimosaConfig.phantomcss.synchronous = true;
       }
 
       execute(mimosaConfig.phantomcss, loggerProxy);
