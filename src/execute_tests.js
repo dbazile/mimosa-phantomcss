@@ -3,8 +3,9 @@ var child = require('child_process');
 var glob = require('glob');
 
 var numberOfRunningTests = 0;
+var numberOfFailures = 0;
 var casperExecutionOptions;
-var isVerbose, logger;
+var isVerbose, logger, onAllTestsComplete;
 
 /**
  * Adds required library binaries to the system environment PATH.
@@ -71,8 +72,9 @@ function generateCasperCommand(filepath) {
  *
  * @param  {Object} config         The phantomcss node from mimosaConfig
  * @param  {Object} loggerInstance An instance of the mimosa logger object
+ * @param  {Function?} onComplete  A callback to be executed after all tests complete
  */
-function main(config, loggerInstance) {
+function main(config, loggerInstance, onComplete) {
   var directory = config.testDirectory;
   var pattern = config.testPattern;
 
@@ -80,13 +82,14 @@ function main(config, loggerInstance) {
   logger = loggerInstance;
   isVerbose = config.verbose;
   casperExecutionOptions = config.executionOptions.join(' ');
+  onAllTestsComplete = onComplete;
 
   // Executing casperjs test requires the library binaries to be on the system PATH
   appendLibrariesToPath(config.libraries);
 
   // Find and execute test files
   logger.debug('Globbing files: [[ %s/%s ]]', directory, pattern);
-  glob(path.join(directory, pattern), function(err, files) {
+  glob(path.join(directory, pattern), function(_, files) {
     numberOfRunningTests = files.length;
     if (files.length) {
       files.forEach(config.synchronous ? executeSync : execute);
@@ -105,20 +108,43 @@ function main(config, loggerInstance) {
 function onExecuteComplete(filepath, stdout) {
   logger.debug('After executing [[ casperjs test %s ]]', filepath);
 
+  // Fail fast if there was an execution error in a test script
+  if (-1 !== stdout.indexOf('error: ')) {
+    logger.error('Encountered error in [[ %s ]]:\n%s\n\n', filepath, stdout);
+    process.exit(1);
+  }
+
+  // Tally the successes and failures for this execution
+  var report = scrapeOutput(stdout);
+
+  // Emit appropriate log messages
   if (isVerbose) {
     logger.info('Verbose output for [[ %s ]]:\n%s\n\n', filepath, stdout);
-  } else if (-1 !== stdout.indexOf('error: ')) {
-    logger.error('Encountered error in [[ %s ]]:\n%s\n\n', filepath, stdout);
-
-    // Fail fast if there was an execution error in a test script
-    process.exit(1);
-
   } else {
-    var report = scrapeOutput(stdout);
-
     logBaselinedImages(report.baseline, filepath);
     logFailedImages(report.failures, filepath);
-    logFinalReport(report, filepath);
+    logReportSummary(report, filepath);
+  }
+
+  postProcessing(report);
+}
+
+/**
+ * Perform any final processing for this execution.
+ *
+ * @param report {Object}
+ */
+function postProcessing(report) {
+
+  // Update the metrics
+  numberOfFailures += report.failures.length;
+  numberOfRunningTests -= 1;
+
+  // Notify main()'s callback if there are no more tests
+  if (0 === numberOfRunningTests && typeof onAllTestsComplete === 'function') {
+    var successful = (0 === numberOfFailures);
+
+    onAllTestsComplete(successful);
   }
 }
 
@@ -149,12 +175,12 @@ function logFailedImages(images, filepath) {
 }
 
 /**
- * Emits a sensible report based on the execution results for a single test script.
+ * Emits a summarized report based on the execution results for a single test script.
  *
  * @param  {Object} report   A simple hash containing arrays of passed, failed and baselined screenshots
  * @param  {String} filepath The path to the test file that executed
  */
-function logFinalReport(report, filepath) {
+function logReportSummary(report, filepath) {
   if (0 === report.failures.length) {
 
     // No Failures

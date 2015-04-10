@@ -163,8 +163,39 @@ function registerCommand(program, logger, retrieveConfig) {
   }
 }
 
+/**
+ * Registers a workflow operation for the PhantomCSS execution, if enabled.
+ *
+ * @param  {Object} mimosaConfig
+ * @param  {Function} register
+ */
+function registration(mimosaConfig, register) {
+  var loggerProxy = generateLoggerProxy(mimosaConfig.log);
+  var config = mimosaConfig.phantomcss;
+
+  if (config.enabledOnBuild && mimosaConfig.isBuild) {
+    register(['postBuild'], 'afterInstall', function (mimosaConfig, options, next) {
+
+      execute(config, loggerProxy, function (allTestsPassed) {
+        if (!allTestsPassed) {
+          if (config.shouldStopBuildOnFailure || mimosaConfig.exitOnError) {
+            loggerProxy.error('Build broken by failures in visual tests');
+            process.exit(1);
+          } else {
+            loggerProxy.warn('Build has failures in visual tests');
+          }
+        }
+
+        next();
+      });
+
+    });
+  }
+}
+
 module.exports = {
-  registerCommand: registerCommand,
   defaults: config.defaults,
+  registerCommand: registerCommand,
+  registration: registration,
   validate: config.validate
 };

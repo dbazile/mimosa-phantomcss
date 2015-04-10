@@ -117,6 +117,8 @@ These scripts are essentially CasperJS scripts, so everything that you'd expect 
 phantomcss: {
   verbose: false,
   synchronous: false,
+  enabledOnBuild: true,
+  shouldStopBuildOnFailure: true,
   testDirectory: 'assets/javascripts/tests/visual',
   testPattern: '**/*{test,spec}.{js,coffee}',
   filteredTestPatternTemplate: '**/____FILTERS____*{test,spec}.{js,coffee}',
@@ -137,6 +139,16 @@ Setting this property to `true` will always print out the raw CasperJS output to
 #### `phantomcss.synchronous` boolean
 
 Setting this property to `true` will always run tests synchronously.  This is the same as running every time with the `-s` flag.
+
+#### `phantomcss.enabledOnBuild` boolean
+
+Setting this property to `true` will execute your tests at the end of a `mimosa build` operation.
+
+> *Note: You will most likely want to use this in concert with [mimosa-build-task](https://github.com/dbashford/mimosa-build-task) to start a server so you can test*
+
+#### `phantomcss.shouldStopBuildOnFailure` boolean
+
+Setting this property to `true` will cause the build to break when there are test failures.
 
 #### `phantomcss.testDirectory` string
 
