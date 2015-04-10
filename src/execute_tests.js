@@ -9,7 +9,7 @@ var isVerbose, logger;
 /**
  * Adds required library binaries to the system environment PATH.
  *
- * @param  {object} libraries  An object whose properties contain string paths for each required library
+ * @param  {Object} libraries  An object whose properties contain string paths for each required library
  */
 function appendLibrariesToPath(libraries) {
   var _normalize = function (s) { return path.resolve(path.join(s, 'bin')); };
@@ -22,7 +22,7 @@ function appendLibrariesToPath(libraries) {
 /**
  * Executes a test synchronously.
  *
- * @param  {string} filepath  Path to the CasperJS test script
+ * @param  {String} filepath  Path to the CasperJS test script
  */
 function executeSync(filepath) {
   var command = generateCasperCommand(filepath);
@@ -43,7 +43,7 @@ function executeSync(filepath) {
 /**
  * Executes a test asynchronously.
  *
- * @param  {string} filepath  Path to the CasperJS test script
+ * @param  {String} filepath  Path to the CasperJS test script
  */
 function execute(filepath) {
   var command = generateCasperCommand(filepath);
@@ -59,8 +59,8 @@ function execute(filepath) {
 /**
  * Returns the command string to be executed.
  *
- * @param  {string} filepath  Path to the CasperJS test script
- * @return {string}
+ * @param  {String} filepath  Path to the CasperJS test script
+ * @return {String}
  */
 function generateCasperCommand(filepath) {
   return 'casperjs test "' + filepath + '" ' + casperExecutionOptions;
@@ -69,8 +69,8 @@ function generateCasperCommand(filepath) {
 /**
  * Main operation.
  *
- * @param  {object} config         The phantomcss node from mimosaConfig
- * @param  {object} loggerInstance An instance of the mimosa logger object
+ * @param  {Object} config         The phantomcss node from mimosaConfig
+ * @param  {Object} loggerInstance An instance of the mimosa logger object
  */
 function main(config, loggerInstance) {
   var directory = config.testDirectory;
@@ -99,8 +99,8 @@ function main(config, loggerInstance) {
 /**
  * Called whenever the execution of a test script completes.
  *
- * @param  {string} filepath Path to the CasperJS test script
- * @param  {string} stdout
+ * @param  {String} filepath Path to the CasperJS test script
+ * @param  {String} stdout
  */
 function onExecuteComplete(filepath, stdout) {
   logger.debug('After executing [[ casperjs test %s ]]', filepath);
@@ -125,8 +125,8 @@ function onExecuteComplete(filepath, stdout) {
 /**
  * Emits log entries for each baseline created.
  *
- * @param  {string[]} images  A list of screenshot paths
- * @param  {string} filepath  Path to the CasperJS test script
+ * @param  {String[]} images  A list of screenshot paths
+ * @param  {String} filepath  Path to the CasperJS test script
  */
 function logBaselinedImages(images, filepath) {
   var filename = path.basename(filepath);
@@ -138,8 +138,8 @@ function logBaselinedImages(images, filepath) {
 /**
  * Emits log entries for each failure.
  *
- * @param  {string[]} images  A list of screenshot paths
- * @param  {string} filepath  Path to the CasperJS test script
+ * @param  {String[]} images  A list of screenshot paths
+ * @param  {String} filepath  Path to the CasperJS test script
  */
 function logFailedImages(images, filepath) {
   var filename = path.basename(filepath);
@@ -151,8 +151,8 @@ function logFailedImages(images, filepath) {
 /**
  * Emits a sensible report based on the execution results for a single test script.
  *
- * @param  {object} report   A simple hash containing arrays of passed, failed and baselined screenshots
- * @param  {string} filepath The path to the test file that executed
+ * @param  {Object} report   A simple hash containing arrays of passed, failed and baselined screenshots
+ * @param  {String} filepath The path to the test file that executed
  */
 function logFinalReport(report, filepath) {
   if (0 === report.failures.length) {
@@ -176,8 +176,8 @@ function logFinalReport(report, filepath) {
 /**
  * Converts raw STDOUT from a CasperJS into a simplified report object.
  *
- * @param  {string} stdout Raw STDOUT string
- * @return {object}
+ * @param  {String} stdout Raw STDOUT string
+ * @return {Object}
  */
 function scrapeOutput(stdout) {
   var PATTERN_PASS = /PASS No changes found for screenshot (.*)$/;

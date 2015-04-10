@@ -8,8 +8,9 @@ var generateTests = require('./generate_tests');
 /**
  * Applies a list of glob modifiers to the test pattern.
  *
- * @param  {string[]} filters
- * @param  {object}   config   mimosa-phantomcss config object
+ * @param  {String[]} filters
+ * @param  {Object}   config   mimosa-phantomcss config object
+ * @param  {Object}   logger
  */
 function applyFiltersToTestPattern(filters, config, logger) {
   var filterString = filters.join(',');
@@ -27,7 +28,7 @@ function applyFiltersToTestPattern(filters, config, logger) {
  * v.2.x).
  *
  * @param  {arguments} args
- * @return {array}
+ * @return {Array}
  */
 function extractFilters(args) {
   return Array.prototype.slice.call(args, 0, args.length - 1);
@@ -38,7 +39,7 @@ function extractFilters(args) {
  * lack of variadic arguments in Commander.js 1.3 (used in Mimosa as of v.2.x).
  *
  * @param  {arguments} args
- * @return {array}
+ * @return {Array}
  */
 function extractOptions(args) {
   return args[args.length - 1];
@@ -47,8 +48,8 @@ function extractOptions(args) {
 /**
  * Generates a logger wrapper that prefixes the module name to log output.
  *
- * @param  {object} logger The raw Mimosa logger
- * @return {object}
+ * @param  {Object} logger The raw Mimosa logger
+ * @return {Object}
  */
 function generateLoggerProxy(logger) {
   var proxy = {};
@@ -69,9 +70,9 @@ function generateLoggerProxy(logger) {
 /**
  * Registers the Mimosa commands for this module.
  *
- * @param {object}   program         Commander.js object
- * @param {object}   logger          Mimosa logger
- * @param {function} retrieveConfig  Mimosa callback
+ * @param {Object}   program         Commander.js object
+ * @param {Object}   logger          Mimosa logger
+ * @param {Function} retrieveConfig  Mimosa callback
  */
 function registerCommand(program, logger, retrieveConfig) {
   program
