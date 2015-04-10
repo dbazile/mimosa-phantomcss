@@ -68,6 +68,57 @@ function generateCasperCommand(filepath) {
 }
 
 /**
+ * Emits log entries for each baseline created.
+ *
+ * @param  {String[]} images  A list of screenshot paths
+ * @param  {String} filepath  Path to the CasperJS test script
+ */
+function logBaselinedImages(images, filepath) {
+  var filename = path.basename(filepath);
+  images.forEach(function(image) {
+    logger.success(filename + ': Baselined [[ ' + image + ' ]]');
+  });
+}
+
+/**
+ * Emits log entries for each failure.
+ *
+ * @param  {String[]} images  A list of screenshot paths
+ * @param  {String} filepath  Path to the CasperJS test script
+ */
+function logFailedImages(images, filepath) {
+  var filename = path.basename(filepath);
+  images.forEach(function(image) {
+    logger.error(filename + ': Failed [[ ' + image + ' ]]');
+  });
+}
+
+/**
+ * Emits a summarized report based on the execution results for a single test script.
+ *
+ * @param  {Object} report   A simple hash containing arrays of passed, failed and baselined screenshots
+ * @param  {String} filepath The path to the test file that executed
+ */
+function logReportSummary(report, filepath) {
+  if (0 === report.failures.length) {
+
+    // No Failures
+
+    if (report.passes.length) {
+
+      // At least one Pass
+      logger.success('[[ ' + filepath + ' ]]: All tests passed in ' + report.duration + 's');
+
+    } else if (!report.baseline.length) {
+
+      // No Failures, no Passes and no Baselines -- did anything happen?
+      logger.info('[[ %s ]]: Executed, but no visual tests ran (try running again with -v flag to see the raw casperjs output)', filepath);
+
+    }
+  }
+}
+
+/**
  * Main operation.
  *
  * @param  {Object} config         The phantomcss node from mimosaConfig
@@ -145,57 +196,6 @@ function postProcessing(report) {
     var successful = (0 === numberOfFailures);
 
     onAllTestsComplete(successful);
-  }
-}
-
-/**
- * Emits log entries for each baseline created.
- *
- * @param  {String[]} images  A list of screenshot paths
- * @param  {String} filepath  Path to the CasperJS test script
- */
-function logBaselinedImages(images, filepath) {
-  var filename = path.basename(filepath);
-  images.forEach(function(image) {
-    logger.success(filename + ': Baselined [[ ' + image + ' ]]');
-  });
-}
-
-/**
- * Emits log entries for each failure.
- *
- * @param  {String[]} images  A list of screenshot paths
- * @param  {String} filepath  Path to the CasperJS test script
- */
-function logFailedImages(images, filepath) {
-  var filename = path.basename(filepath);
-  images.forEach(function(image) {
-    logger.error(filename + ': Failed [[ ' + image + ' ]]');
-  });
-}
-
-/**
- * Emits a summarized report based on the execution results for a single test script.
- *
- * @param  {Object} report   A simple hash containing arrays of passed, failed and baselined screenshots
- * @param  {String} filepath The path to the test file that executed
- */
-function logReportSummary(report, filepath) {
-  if (0 === report.failures.length) {
-
-    // No Failures
-
-    if (report.passes.length) {
-
-      // At least one Pass
-      logger.success('[[ ' + filepath + ' ]]: All tests passed in ' + report.duration + 's');
-
-    } else if (!report.baseline.length) {
-
-      // No Failures, no Passes and no Baselines -- did anything happen?
-      logger.info('[[ %s ]]: Executed, but no visual tests ran (try running again with -v flag to see the raw casperjs output)', filepath);
-
-    }
   }
 }
 
