@@ -28,17 +28,16 @@ function main(directory, pattern, logger) {
   if (false === isUnsafePattern(pattern)) {
     logger.debug('Globbing files: [[ %s/%s ]]', directory, pattern);
 
-    glob(path.join(directory, pattern), function(err, files) {
-      files.forEach(function(filepath) {
-        fs.unlink(filepath, function(err) {
-          if (err) {
-            logger.error('Unlink failed: [[ (%s) %s ]]', err.code, err.path);
-          } else {
-            logger.debug('Unlinked: [[ %s ]]', filepath);
-          }
-        });
+    glob
+      .sync(path.join(directory, pattern))
+      .forEach(function(filepath) {
+        try {
+          fs.unlinkSync(filepath);
+          logger.debug('Unlinked: [[ %s ]]', filepath);
+        } catch (error) {
+          logger.error('Unlink failed: [[ (%s) %s ]]', err.code, err.path);
+        }
       });
-    });
   } else {
     logger.warn('Will not clean unsafe glob pattern; [[ %s ]] will find files outside of the target directory (%s)', pattern, directory);
   }
